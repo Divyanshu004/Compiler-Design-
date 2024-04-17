@@ -1,0 +1,25 @@
+import re
+
+def extract_emails(text):
+    # Regular expression pattern to match email addresses
+    email_pattern = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
+
+    # Find all matches in the text
+    emails = re.findall(email_pattern, text)
+
+    return emails
+
+def main():
+    # Example text containing email addresses
+    text = "Contact us at support@example.com or info@company.com for assistance."
+
+    # Extract email addresses from the text
+    extracted_emails = extract_emails(text)
+
+    # Print the extracted email addresses
+    print("Extracted email addresses:")
+    for email in extracted_emails:
+        print(email)
+
+if __name__ == "__main__":
+    main()
