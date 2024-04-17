@@ -1,0 +1,68 @@
+class SLRParser:
+    def __init__(self, grammar, parsing_table):
+        self.grammar = grammar
+        self.parsing_table = parsing_table
+
+    def parse(self, input_string):
+        stack = ['$', 0]  # Initial stack with end of input symbol ($) and start state (0)
+        input_string += '$'  # Add end of input symbol to the input string
+        input_index = 0
+
+        while True:
+            state = stack[-1]
+            lookahead = input_string[input_index]
+
+            if (state, lookahead) not in self.parsing_table:
+                raise ValueError(f"No entry in parsing table for state {state} and lookahead {lookahead}")
+
+            action = self.parsing_table[(state, lookahead)]
+
+            if action[0] == 'shift':
+                stack.append(lookahead)
+                stack.append(action[1])  # Push the new state onto the stack
+                input_index += 1  # Move to the next input symbol
+            elif action[0] == 'reduce':
+                production_rule = action[1]
+                for _ in range(2 * len(production_rule)):
+                    stack.pop()  # Pop symbols corresponding to the length of the right-hand side of the production
+                non_terminal = production_rule[0]
+                stack.append(non_terminal)  # Push the left-hand side of the production onto the stack
+                new_state = self.parsing_table[(stack[-2], non_terminal)]  # Get the new state from the goto table
+                stack.append(new_state)
+            elif action[0] == 'accept':
+                print("Parsing successful!")
+                return True
+            else:
+                raise ValueError("Invalid action in parsing table")
+
+    def print_parsing_table(self):
+        print("Parsing Table:")
+        for (state, symbol), action in self.parsing_table.items():
+            print(f"({state}, '{symbol}') -> {action}")
+
+
+if __name__ == "__main__":
+    # Example SLR parsing table
+    parsing_table = {
+        (0, 'a'): ('shift', 1),
+        (0, 'S'): ('accept', None),
+        (1, 'b'): ('shift', 2),
+        (1, 'A'): ('reduce', ('A', 'aA')),
+        (2, '$'): ('reduce', ('S', 'A')),
+        (2, 'b'): ('shift', 3),
+        (3, '$'): ('reduce', ('A', 'aA')),
+        (3, 'A'): ('reduce', ('A', 'aA')),
+    }
+
+    # Example grammar
+    grammar = {
+        'S': ['A'],
+        'A': ['aA', 'b']
+    }
+
+    parser = SLRParser(grammar, parsing_table)
+    parser.print_parsing_table()
+
+    input_string = "aab"
+    print(f"Parsing input string '{input_string}':")
+    parser.parse(input_string)
