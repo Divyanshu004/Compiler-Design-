@@ -1,0 +1,22 @@
+%{
+#include <stdio.h>
+%}
+
+DIGIT       [0-9]
+NUMBER      {DIGIT}+(\.{DIGIT}+)?
+WS          [ \t\n]+
+
+%%
+{WS}        /* ignore whitespace */
+"+"         { printf("ADD\n"); }
+"-"         { printf("SUB\n"); }
+"*"         { printf("MUL\n"); }
+"/"         { printf("DIV\n"); }
+{NUMBER}    { printf("NUMBER\n"); }
+.           { printf("Unknown token\n"); }
+%%
+
+int main() {
+    yylex();
+    return 0;
+}
