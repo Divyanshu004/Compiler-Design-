@@ -1,0 +1,28 @@
+import java.util.Scanner;
+
+public class IfElseWhileExample {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+
+        // Example of if-else statement
+        System.out.print("Enter a number: ");
+        int number = scanner.nextInt();
+
+        if (number % 2 == 0) {
+            System.out.println(number + " is even.");
+        } else {
+            System.out.println(number + " is odd.");
+        }
+
+        // Example of while loop
+        System.out.println("Countdown from 5:");
+        int countdown = 5;
+        while (countdown > 0) {
+            System.out.println(countdown);
+            countdown--;
+        }
+        System.out.println("Blast off!");
+        
+        scanner.close();
+    }
+}
