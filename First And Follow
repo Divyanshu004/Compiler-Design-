@@ -1,0 +1,86 @@
+class Grammar:
+    def __init__(self, productions):
+        self.productions = productions
+        self.first = {}
+        self.follow = {}
+
+    def calculate_first(self):
+        for non_terminal in self.productions.keys():
+            self.first[non_terminal] = self.calculate_first_non_terminal(non_terminal)
+
+    def calculate_follow(self):
+        for non_terminal in self.productions.keys():
+            self.follow[non_terminal] = set()
+
+        start_symbol = next(iter(self.productions))
+        self.follow[start_symbol].add('$')
+
+        changed = True
+        while changed:
+            changed = False
+            for non_terminal, production_rules in self.productions.items():
+                for rule in production_rules:
+                    for i, symbol in enumerate(rule):
+                        if symbol in self.productions:
+                            if i < len(rule) - 1:
+                                next_symbol = rule[i + 1]
+                                if next_symbol in self.productions:
+                                    follow_before = len(self.follow[next_symbol])
+                                    self.follow[next_symbol] |= self.first[rule[i + 1]]
+                                    self.follow[next_symbol].discard('ε')
+                                    follow_after = len(self.follow[next_symbol])
+                                    if follow_after != follow_before:
+                                        changed = True
+                            else:
+                                follow_before = len(self.follow[symbol])
+                                self.follow[symbol] |= self.follow[non_terminal]
+                                follow_after = len(self.follow[symbol])
+                                if follow_after != follow_before:
+                                    changed = True
+
+    def calculate_first_non_terminal(self, non_terminal):
+        first_set = set()
+        for rule in self.productions[non_terminal]:
+            first_set |= self.calculate_first_string(rule)
+        return first_set
+
+    def calculate_first_string(self, string):
+        first_set = set()
+        if not string:
+            first_set.add('ε')
+            return first_set
+        symbol = string[0]
+        if symbol in self.productions:
+            for rule in self.productions[symbol]:
+                first_set |= self.calculate_first_string(rule)
+        else:
+            first_set.add(symbol)
+        if 'ε' in first_set:
+            first_set.discard('ε')
+            first_set |= self.calculate_first_string(string[1:])
+        return first_set
+
+    def print_first(self):
+        print("First Sets:")
+        for non_terminal, first_set in self.first.items():
+            print(f"First({non_terminal}) = {first_set}")
+
+    def print_follow(self):
+        print("\nFollow Sets:")
+        for non_terminal, follow_set in self.follow.items():
+            print(f"Follow({non_terminal}) = {follow_set}")
+
+
+if __name__ == "__main__":
+    # Example grammar
+    productions = {
+        'S': ['AB'],
+        'A': ['aA', 'ε'],
+        'B': ['b']
+    }
+
+    grammar = Grammar(productions)
+    grammar.calculate_first()
+    grammar.calculate_follow()
+    grammar.print_first()
+    grammar.print_follow()
